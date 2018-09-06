@@ -1,4 +1,5 @@
 # TSFoster/elm-md5
+[![Build Status](https://travis-ci.org/TSFoster/elm-md5.svg?branch=feature%2Felm019)](https://travis-ci.org/TSFoster/elm-md5)
 
 Compute MD5 message digests in Elm.
 
