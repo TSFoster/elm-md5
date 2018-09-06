@@ -1,9 +1,8 @@
-# elm-md5
-[![Build Status](https://travis-ci.org/truqu/elm-md5.svg?branch=master)](https://travis-ci.org/truqu/elm-md5)
+# TSFoster/elm-md5
 
 Compute MD5 message digests in Elm.
 
-This is a maintained fork of sanichi/elm-md5 focusing on performance.
+This is a fork of truqu/elm-md5 (the maintained fork of sanichi/elm-md5 focusing on performance), adding `hexInOctets`.
 
 ## Quick Start
 
@@ -38,4 +37,4 @@ myHex input =
 
 ## License
 
-Licensed under BSD-3. See `LICENSE` file. (c) 2016-2018 Mark Orr, 2018-present TruQu
+Licensed under BSD-3. See `LICENSE` file. (c) 2016-2018 Mark Orr, 2018-present TruQu, 2018-present Toby Foster
