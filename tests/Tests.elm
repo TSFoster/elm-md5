@@ -1,36 +1,46 @@
-module Tests exposing (..)
+module Tests exposing (other, rfc1321, test)
 
 import Expect
-import MD5 exposing (hex)
+import Hex
+import MD5 exposing (hex, hexInOctets)
 import Test exposing (Test, describe)
 
 
-test : String -> String -> String -> Test
+test : String -> List Int -> String -> Test
 test description expected input =
-    Test.test description <|
-        \() ->
-            Expect.equal (hex input) expected
+    let
+        expectedString =
+            expected |> List.map Hex.toString |> String.concat
+    in
+    describe description
+        [ Test.test "MD5.hex" <|
+            \() ->
+                Expect.equal (hex input) expectedString
+        , Test.test "MD5.hexInOctets" <|
+            \() ->
+                Expect.equal (hexInOctets input) expected
+        ]
 
 
 other : Test
 other =
     describe "random input"
-        [ test "foobar" "6df23dc03f9b54cc38a0fc1483df6e21" "foobarbaz"
-        , test "lorem" "db89bb5ceab87f9c0fcc2ab36c189c2c" "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        , test "latin1" "38e3f1e10c0b5072c874a72c3c6493d8" "æ ø å ñ"
-        , test "unicode" "2adb08ac813a93665950fe9203faca10" "€ ♝ ♧ ☐"
-        , test "newlines" "e1c06d85ae7b8b032bef47e42e4c08f9" "\n\n"
+        [ test "foobar" [ 0x6D, 0xF2, 0x3D, 0xC0, 0x3F, 0x9B, 0x54, 0xCC, 0x38, 0xA0, 0xFC, 0x14, 0x83, 0xDF, 0x6E, 0x21 ] "foobarbaz"
+        , test "lorem" [ 0xDB, 0x89, 0xBB, 0x5C, 0xEA, 0xB8, 0x7F, 0x9C, 0x0F, 0xCC, 0x2A, 0xB3, 0x6C, 0x18, 0x9C, 0x2C ] "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        , test "latin1" [ 0x38, 0xE3, 0xF1, 0xE1, 0x0C, 0x0B, 0x50, 0x72, 0xC8, 0x74, 0xA7, 0x2C, 0x3C, 0x64, 0x93, 0xD8 ] "æ ø å ñ"
+        , test "unicode" [ 0x2A, 0xDB, 0x08, 0xAC, 0x81, 0x3A, 0x93, 0x66, 0x59, 0x50, 0xFE, 0x92, 0x03, 0xFA, 0xCA, 0x10 ] "€ ♝ ♧ ☐"
+        , test "newlines" [ 0xE1, 0xC0, 0x6D, 0x85, 0xAE, 0x7B, 0x8B, 0x03, 0x2B, 0xEF, 0x47, 0xE4, 0x2E, 0x4C, 0x08, 0xF9 ] "\n\n"
         ]
 
 
 rfc1321 : Test
 rfc1321 =
     describe "testcases listed in rfc1321"
-        [ test "empty" "d41d8cd98f00b204e9800998ecf8427e" ""
-        , test "a" "0cc175b9c0f1b6a831c399e269772661" "a"
-        , test "abc" "900150983cd24fb0d6963f7d28e17f72" "abc"
-        , test "message digest" "f96b697d7cb7938d525a2f31aaf161d0" "message digest"
-        , test "lowercase alpha" "c3fcd3d76192e4007dfb496cca67e13b" "abcdefghijklmnopqrstuvwxyz"
-        , test "alphanum" "d174ab98d277d9f5a5611c2c9f419d9f" "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        , test "numnumnum" "57edf4a22be3c955ac49da2e2107b67a" "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+        [ test "empty" [ 0xD4, 0x1D, 0x8C, 0xD9, 0x8F, 0x00, 0xB2, 0x04, 0xE9, 0x80, 0x09, 0x98, 0xEC, 0xF8, 0x42, 0x7E ] ""
+        , test "a" [ 0x0C, 0xC1, 0x75, 0xB9, 0xC0, 0xF1, 0xB6, 0xA8, 0x31, 0xC3, 0x99, 0xE2, 0x69, 0x77, 0x26, 0x61 ] "a"
+        , test "abc" [ 0x90, 0x01, 0x50, 0x98, 0x3C, 0xD2, 0x4F, 0xB0, 0xD6, 0x96, 0x3F, 0x7D, 0x28, 0xE1, 0x7F, 0x72 ] "abc"
+        , test "message digest" [ 0xF9, 0x6B, 0x69, 0x7D, 0x7C, 0xB7, 0x93, 0x8D, 0x52, 0x5A, 0x2F, 0x31, 0xAA, 0xF1, 0x61, 0xD0 ] "message digest"
+        , test "lowercase alpha" [ 0xC3, 0xFC, 0xD3, 0xD7, 0x61, 0x92, 0xE4, 0x00, 0x7D, 0xFB, 0x49, 0x6C, 0xCA, 0x67, 0xE1, 0x3B ] "abcdefghijklmnopqrstuvwxyz"
+        , test "alphanum" [ 0xD1, 0x74, 0xAB, 0x98, 0xD2, 0x77, 0xD9, 0xF5, 0xA5, 0x61, 0x1C, 0x2C, 0x9F, 0x41, 0x9D, 0x9F ] "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        , test "numnumnum" [ 0x57, 0xED, 0xF4, 0xA2, 0x2B, 0xE3, 0xC9, 0x55, 0xAC, 0x49, 0xDA, 0x2E, 0x21, 0x07, 0xB6, 0x7A ] "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
         ]

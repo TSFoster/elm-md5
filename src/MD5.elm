@@ -1,4 +1,4 @@
-module MD5 exposing (hex)
+module MD5 exposing (hex, hexInOctets)
 
 {-| This library allows you to compute MD5 message digests in Elm. It exposes a
 single function that takes any string and outputs a "fingerprint" containing 32
@@ -8,7 +8,7 @@ hexadecimal characters. More information about the MD5 algorithm can be found
 
 # Digest Functions
 
-@docs hex
+@docs hex, hexInOctets
 
 -}
 
@@ -39,12 +39,36 @@ For example:
 
 -}
 hex : String -> String
-hex string =
+hex =
+    hexInOctets >> List.map toHex >> String.concat
+
+
+{-| Given a string of arbitrary length, returns a list of 16 integers,
+representing the octets comprising the 128-bit MD5 message digest.
+
+    hexInOctets "" == [ 0xD4, 0x1D, 0x8C, 0xD9, 0x8F, 0x00, 0xB2, 0x04, 0xE9, 0x80, 0x09, 0x98, 0xEC, 0xF8, 0x42, 0x7E ]
+
+    hexInOctets "foobarbaz" == [ 0x6D, 0xF2, 0x3D, 0xC0, 0x3F, 0x9B, 0x54, 0xCC, 0x38, 0xA0, 0xFC, 0x14, 0x83, 0xDF, 0x6E, 0x21 ]
+
+-}
+hexInOctets : String -> List Int
+hexInOctets string =
     let
         { a, b, c, d } =
             hash string
     in
-    wordToHex a ++ wordToHex b ++ wordToHex c ++ wordToHex d
+    [ a, b, c, d ]
+        |> List.map toOctets
+        |> List.concat
+
+
+toOctets : Int -> List Int
+toOctets word =
+    [ word |> and 0xFF
+    , word |> shiftRightZfBy 0x08 |> and 0xFF
+    , word |> shiftRightZfBy 0x10 |> and 0xFF
+    , word |> shiftRightZfBy 0x18 |> and 0xFF
+    ]
 
 
 hex_ : List Int -> State -> State
@@ -415,24 +439,6 @@ finishUp ( hashState, ( byteCount, words ), totalByteCount ) =
             |> Array.set 15 (shiftRightZfBy 29 totalByteCount)
             |> Array.toList
             |> (\x -> hex_ x (hex_ (Array.toList newWords) hashState))
-
-
-wordToHex : Int -> String
-wordToHex input =
-    wordToHex_ input 0 ""
-
-
-wordToHex_ : Int -> Int -> String -> String
-wordToHex_ input index output =
-    if index > 3 then
-        output
-
-    else
-        let
-            byte =
-                and (shiftRightZfBy (index * 8) input) 255
-        in
-        wordToHex_ input (index + 1) (output ++ String.padLeft 2 '0' (toHex byte))
 
 
 toHex : Int -> String
