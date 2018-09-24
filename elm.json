@@ -1,9 +1,9 @@
 {
     "type": "package",
     "name": "TSFoster/elm-md5",
-    "summary": "Quickly compute MD5 message digests in pure Elm",
+    "summary": "DEPRECATED: Use truqu/elm-md5",
     "license": "BSD-3-Clause",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "exposed-modules": [
         "MD5"
     ],
