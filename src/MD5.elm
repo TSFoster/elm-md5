@@ -1,6 +1,11 @@
-module MD5 exposing (hex, hexInOctets)
+module MD5 exposing (hex, bytes, hexInOctets)
 
-{-| This library allows you to compute MD5 message digests in Elm. It exposes a
+{-|
+
+
+# NOTE: This library is deprecated, please use [truqu/elm-md5](https://package.elm-lang.org/packages/truqu/elm-md5/latest/MD5)
+
+This library allows you to compute MD5 message digests in Elm. It exposes a
 single function that takes any string and outputs a "fingerprint" containing 32
 hexadecimal characters. More information about the MD5 algorithm can be found
 [here](https://en.wikipedia.org/wiki/MD5).
@@ -8,7 +13,7 @@ hexadecimal characters. More information about the MD5 algorithm can be found
 
 # Digest Functions
 
-@docs hex, hexInOctets
+@docs hex, bytes, hexInOctets
 
 -}
 
@@ -17,58 +22,65 @@ import Bitwise exposing (and, complement, or, shiftLeftBy, shiftRightBy, shiftRi
 import String.UTF8 as UTF8
 
 
-{-| Given a string of arbitrary length, returns a string of 32 hexadecimal characters (a-f, 0-9)
-representing the 128-bit MD5 message digest.
+{-| Given a string of arbitrary length, returns a string of 32 hexadecimal
+characters (a-f, 0-9) representing the 128-bit MD5 message digest.
 
-    hex "" == "d41d8cd98f00b204e9800998ecf8427e"
+    hex ""
+    --> "d41d8cd98f00b204e9800998ecf8427e"
 
-    hex "foobarbaz" == "6df23dc03f9b54cc38a0fc1483df6e21"
-
-Unlike the [Javascript program](https://css-tricks.com/snippets/javascript/javascript-md5/) upon which this
-implementation is based, CRLF pairs in the input are not automatically replaced with LFs prior to computing
-the digest. If you want that behaviour you should adjust the input yourself before evaluating the function.
-For example:
-
-    myHex : String -> String
-    myHex input =
-        let
-            myInput =
-                Regex.replace Regex.All (Regex.regex "\u{000D}\n") (\_ -> "\n") input
-        in
-        hex myInput
+    hex "foobarbaz"
+    --> "6df23dc03f9b54cc38a0fc1483df6e21"
 
 -}
 hex : String -> String
-hex =
-    hexInOctets >> List.map toHex >> String.concat
+hex s =
+    List.foldl (\b acc -> acc ++ String.padLeft 2 '0' (toHex b)) "" (bytes s)
 
 
-{-| Given a string of arbitrary length, returns a list of 16 integers,
-representing the octets comprising the 128-bit MD5 message digest.
+{-| Given a string of arbitrary length, returns a list of integers representing
+the hash as a series of individual bytes.
 
-    hexInOctets "" == [ 0xD4, 0x1D, 0x8C, 0xD9, 0x8F, 0x00, 0xB2, 0x04, 0xE9, 0x80, 0x09, 0x98, 0xEC, 0xF8, 0x42, 0x7E ]
-
-    hexInOctets "foobarbaz" == [ 0x6D, 0xF2, 0x3D, 0xC0, 0x3F, 0x9B, 0x54, 0xCC, 0x38, 0xA0, 0xFC, 0x14, 0x83, 0xDF, 0x6E, 0x21 ]
+    bytes "hello world"
+    --> [ 0x5e , 0xb6 , 0x3b , 0xbb
+    --> , 0xe0 , 0x1e , 0xee , 0xd0
+    --> , 0x93 , 0xcb , 0x22 , 0xbb
+    --> , 0x8f , 0x5a , 0xcd , 0xc3
+    --> ]
 
 -}
-hexInOctets : String -> List Int
-hexInOctets string =
+bytes : String -> List Int
+bytes string =
     let
         { a, b, c, d } =
             hash string
     in
-    [ a, b, c, d ]
-        |> List.map toOctets
-        |> List.concat
-
-
-toOctets : Int -> List Int
-toOctets word =
-    [ word |> and 0xFF
-    , word |> shiftRightZfBy 0x08 |> and 0xFF
-    , word |> shiftRightZfBy 0x10 |> and 0xFF
-    , word |> shiftRightZfBy 0x18 |> and 0xFF
+    [ and a 255
+    , and (shiftRightZfBy 8 a) 255
+    , and (shiftRightZfBy 16 a) 255
+    , and (shiftRightZfBy 24 a) 255
+    , and b 255
+    , and (shiftRightZfBy 8 b) 255
+    , and (shiftRightZfBy 16 b) 255
+    , and (shiftRightZfBy 24 b) 255
+    , and c 255
+    , and (shiftRightZfBy 8 c) 255
+    , and (shiftRightZfBy 16 c) 255
+    , and (shiftRightZfBy 24 c) 255
+    , and d 255
+    , and (shiftRightZfBy 8 d) 255
+    , and (shiftRightZfBy 16 d) 255
+    , and (shiftRightZfBy 24 d) 255
     ]
+
+
+{-| Alias for [`bytes`](#bytes), for compatibility reasons.
+
+    hexInOctets "hello world" == bytes "hello world"
+
+-}
+hexInOctets : String -> List Int
+hexInOctets =
+    bytes
 
 
 hex_ : List Int -> State -> State

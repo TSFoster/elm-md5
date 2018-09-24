@@ -1,6 +1,8 @@
 # TSFoster/elm-md5
 [![Build Status](https://travis-ci.org/TSFoster/elm-md5.svg?branch=feature%2Felm019)](https://travis-ci.org/TSFoster/elm-md5)
 
+# NOTE: This library is deprecated, please use [truqu/elm-md5](https://package.elm-lang.org/packages/truqu/elm-md5/latest/MD5)
+
 Compute MD5 message digests in Elm.
 
 This is a fork of truqu/elm-md5 (the maintained fork of sanichi/elm-md5 focusing on performance), adding `hexInOctets`.
