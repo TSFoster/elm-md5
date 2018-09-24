@@ -2,23 +2,17 @@ module Tests exposing (other, rfc1321, test)
 
 import Expect
 import Hex
-import MD5 exposing (hex, hexInOctets)
+import MD5 exposing (fromBytes)
+import String.UTF8
 import Test exposing (Test, describe)
 
 
 test : String -> List Int -> String -> Test
 test description expected input =
-    let
-        expectedString =
-            expected |> List.map Hex.toString |> String.concat
-    in
     describe description
-        [ Test.test "MD5.hex" <|
+        [ Test.test "MD5.fromBytes" <|
             \() ->
-                Expect.equal (hex input) expectedString
-        , Test.test "MD5.hexInOctets" <|
-            \() ->
-                Expect.equal (hexInOctets input) expected
+                Expect.equal (fromBytes <| String.UTF8.toBytes input) expected
         ]
 
 

@@ -1,46 +1,28 @@
-module MD5 exposing (hex, bytes, hexInOctets)
+module MD5 exposing (fromBytes)
 
-{-|
-
-
-# NOTE: This library is deprecated, please use [truqu/elm-md5](https://package.elm-lang.org/packages/truqu/elm-md5/latest/MD5)
-
-This library allows you to compute MD5 message digests in Elm. It exposes a
-single function that takes any string and outputs a "fingerprint" containing 32
-hexadecimal characters. More information about the MD5 algorithm can be found
-[here](https://en.wikipedia.org/wiki/MD5).
+{-| This library allows you to compute MD5 message digests of arbitrary messages
+in Elm. All input and output is given in lists of integers (`List Int`), where
+each `Int` is assumed to be a byte. The hard work of this package was
+done by Mark Orr and TruQu, for a more practical MD5, please see [their
+package](https://package.elm-lang.org/packages/truqu/elm-md5/latest/).
 
 
-# Digest Functions
+# Digest Function
 
-@docs hex, bytes, hexInOctets
+@docs fromBytes
 
 -}
 
 import Array exposing (Array)
 import Bitwise exposing (and, complement, or, shiftLeftBy, shiftRightBy, shiftRightZfBy)
-import String.UTF8 as UTF8
 
 
-{-| Given a string of arbitrary length, returns a string of 32 hexadecimal
-characters (a-f, 0-9) representing the 128-bit MD5 message digest.
-
-    hex ""
-    --> "d41d8cd98f00b204e9800998ecf8427e"
-
-    hex "foobarbaz"
-    --> "6df23dc03f9b54cc38a0fc1483df6e21"
-
--}
-hex : String -> String
-hex s =
-    List.foldl (\b acc -> acc ++ String.padLeft 2 '0' (toHex b)) "" (bytes s)
-
-
-{-| Given a string of arbitrary length, returns a list of integers representing
+{-| Given a list of integers of arbitrary length, returns a list of integers representing
 the hash as a series of individual bytes.
 
-    bytes "hello world"
+    import String.UTF8
+
+    fromBytes (String.UTF8.toBytes "hello world")
     --> [ 0x5e , 0xb6 , 0x3b , 0xbb
     --> , 0xe0 , 0x1e , 0xee , 0xd0
     --> , 0x93 , 0xcb , 0x22 , 0xbb
@@ -48,11 +30,11 @@ the hash as a series of individual bytes.
     --> ]
 
 -}
-bytes : String -> List Int
-bytes string =
+fromBytes : List Int -> List Int
+fromBytes input =
     let
         { a, b, c, d } =
-            hash string
+            hashBytes input
     in
     [ and a 255
     , and (shiftRightZfBy 8 a) 255
@@ -71,16 +53,6 @@ bytes string =
     , and (shiftRightZfBy 16 d) 255
     , and (shiftRightZfBy 24 d) 255
     ]
-
-
-{-| Alias for [`bytes`](#bytes), for compatibility reasons.
-
-    hexInOctets "hello world" == bytes "hello world"
-
--}
-hexInOctets : String -> List Int
-hexInOctets =
-    bytes
 
 
 hex_ : List Int -> State -> State
@@ -358,10 +330,10 @@ hex_ xs ({ a, b, c, d } as acc) =
             acc
 
 
-hash : String -> State
-hash input =
+hashBytes : List Int -> State
+hashBytes input =
     input
-        |> UTF8.foldl consume ( initialHashState, ( 0, emptyWords ), 0 )
+        |> List.foldl consume ( initialHashState, ( 0, emptyWords ), 0 )
         |> finishUp
 
 

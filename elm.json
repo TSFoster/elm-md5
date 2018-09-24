@@ -1,9 +1,9 @@
 {
     "type": "package",
     "name": "TSFoster/elm-md5",
-    "summary": "DEPRECATED: Use truqu/elm-md5",
+    "summary": "Computes MD5 hash of non-string data",
     "license": "BSD-3-Clause",
-    "version": "1.1.1",
+    "version": "2.0.0",
     "exposed-modules": [
         "MD5"
     ],
