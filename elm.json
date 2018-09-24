@@ -3,7 +3,7 @@
     "name": "TSFoster/elm-md5",
     "summary": "Quickly compute MD5 message digests in pure Elm",
     "license": "BSD-3-Clause",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "exposed-modules": [
         "MD5"
     ],
@@ -13,7 +13,7 @@
         "zwilias/elm-utf-tools": "2.0.0 <= v < 3.0.0"
     },
     "test-dependencies": {
-        "rtfeldman/elm-hex": "1.0.0 <= v < 2.0.0",
-        "elm-explorations/test": "1.0.0 <= v < 2.0.0"
+        "elm-explorations/test": "1.0.0 <= v < 2.0.0",
+        "rtfeldman/elm-hex": "1.0.0 <= v < 2.0.0"
     }
 }
